@@ -2,6 +2,8 @@
 #ifndef FILE_WATCHER_H
 #define FILE_WATCHER_H
 
-void start_file_watcher(const char *path, void (*on_change)(const char *filename));
+void start_file_watcher(const char *path);
+
+int check_rfs_folder_exists();
 
 #endif

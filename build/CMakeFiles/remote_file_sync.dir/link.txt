@@ -1,0 +1,1 @@
+/usr/bin/cc  -std=c99 CMakeFiles/remote_file_sync.dir/client/file_watcher.c.o -o bin/remote_file_sync 
