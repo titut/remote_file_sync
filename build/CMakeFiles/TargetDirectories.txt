@@ -1,4 +1,5 @@
-/home/koroko/Workspace/remote_file_sync/build/CMakeFiles/remote_file_sync.dir
+/home/koroko/Workspace/remote_file_sync/build/CMakeFiles/client.dir
+/home/koroko/Workspace/remote_file_sync/build/CMakeFiles/server.dir
 /home/koroko/Workspace/remote_file_sync/build/CMakeFiles/edit_cache.dir
 /home/koroko/Workspace/remote_file_sync/build/CMakeFiles/rebuild_cache.dir
 /home/koroko/Workspace/remote_file_sync/build/CMakeFiles/list_install_components.dir

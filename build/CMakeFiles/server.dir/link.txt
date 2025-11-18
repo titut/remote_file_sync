@@ -1,0 +1,1 @@
+/usr/bin/cc  -std=c99 CMakeFiles/server.dir/server/server.c.o -o bin/server 

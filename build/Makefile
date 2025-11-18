@@ -162,24 +162,37 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named remote_file_sync
+# Target rules for targets named client
 
 # Build rule for target.
-remote_file_sync: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 remote_file_sync
-.PHONY : remote_file_sync
+client: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 client
+.PHONY : client
 
 # fast build rule for target.
-remote_file_sync/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/build
-.PHONY : remote_file_sync/fast
+client/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/build
+.PHONY : client/fast
+
+#=============================================================================
+# Target rules for targets named server
+
+# Build rule for target.
+server: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 server
+.PHONY : server
+
+# fast build rule for target.
+server/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
+.PHONY : server/fast
 
 client/file_watcher.o: client/file_watcher.c.o
 .PHONY : client/file_watcher.o
 
 # target to build an object file
 client/file_watcher.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/file_watcher.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client/file_watcher.c.o
 .PHONY : client/file_watcher.c.o
 
 client/file_watcher.i: client/file_watcher.c.i
@@ -187,7 +200,7 @@ client/file_watcher.i: client/file_watcher.c.i
 
 # target to preprocess a source file
 client/file_watcher.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/file_watcher.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client/file_watcher.c.i
 .PHONY : client/file_watcher.c.i
 
 client/file_watcher.s: client/file_watcher.c.s
@@ -195,7 +208,7 @@ client/file_watcher.s: client/file_watcher.c.s
 
 # target to generate assembly for a file
 client/file_watcher.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/file_watcher.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client/file_watcher.c.s
 .PHONY : client/file_watcher.c.s
 
 client/rfs_file.o: client/rfs_file.c.o
@@ -203,7 +216,7 @@ client/rfs_file.o: client/rfs_file.c.o
 
 # target to build an object file
 client/rfs_file.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client/rfs_file.c.o
 .PHONY : client/rfs_file.c.o
 
 client/rfs_file.i: client/rfs_file.c.i
@@ -211,7 +224,7 @@ client/rfs_file.i: client/rfs_file.c.i
 
 # target to preprocess a source file
 client/rfs_file.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/rfs_file.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client/rfs_file.c.i
 .PHONY : client/rfs_file.c.i
 
 client/rfs_file.s: client/rfs_file.c.s
@@ -219,7 +232,7 @@ client/rfs_file.s: client/rfs_file.c.s
 
 # target to generate assembly for a file
 client/rfs_file.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/rfs_file.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client/rfs_file.c.s
 .PHONY : client/rfs_file.c.s
 
 client/socket_client.o: client/socket_client.c.o
@@ -227,7 +240,7 @@ client/socket_client.o: client/socket_client.c.o
 
 # target to build an object file
 client/socket_client.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/socket_client.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client/socket_client.c.o
 .PHONY : client/socket_client.c.o
 
 client/socket_client.i: client/socket_client.c.i
@@ -235,7 +248,7 @@ client/socket_client.i: client/socket_client.c.i
 
 # target to preprocess a source file
 client/socket_client.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/socket_client.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client/socket_client.c.i
 .PHONY : client/socket_client.c.i
 
 client/socket_client.s: client/socket_client.c.s
@@ -243,8 +256,32 @@ client/socket_client.s: client/socket_client.c.s
 
 # target to generate assembly for a file
 client/socket_client.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/socket_client.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client/socket_client.c.s
 .PHONY : client/socket_client.c.s
+
+server/server.o: server/server.c.o
+.PHONY : server/server.o
+
+# target to build an object file
+server/server.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server/server.c.o
+.PHONY : server/server.c.o
+
+server/server.i: server/server.c.i
+.PHONY : server/server.i
+
+# target to preprocess a source file
+server/server.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server/server.c.i
+.PHONY : server/server.c.i
+
+server/server.s: server/server.c.s
+.PHONY : server/server.s
+
+# target to generate assembly for a file
+server/server.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server/server.c.s
+.PHONY : server/server.c.s
 
 # Help Target
 help:
@@ -258,7 +295,8 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
-	@echo "... remote_file_sync"
+	@echo "... client"
+	@echo "... server"
 	@echo "... client/file_watcher.o"
 	@echo "... client/file_watcher.i"
 	@echo "... client/file_watcher.s"
@@ -268,6 +306,9 @@ help:
 	@echo "... client/socket_client.o"
 	@echo "... client/socket_client.i"
 	@echo "... client/socket_client.s"
+	@echo "... server/server.o"
+	@echo "... server/server.i"
+	@echo "... server/server.s"
 .PHONY : help
 
 
