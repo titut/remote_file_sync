@@ -43,7 +43,11 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE FILE FILES "/home/koroko/Workspace/remote_file_sync/include/file_watcher.h")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE FILE FILES
+    "/home/koroko/Workspace/remote_file_sync/include/file_watcher.h"
+    "/home/koroko/Workspace/remote_file_sync/include/rfs_file.h"
+    "/home/koroko/Workspace/remote_file_sync/include/socket_client.h"
+    )
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)

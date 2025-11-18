@@ -198,6 +198,54 @@ client/file_watcher.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/file_watcher.c.s
 .PHONY : client/file_watcher.c.s
 
+client/rfs_file.o: client/rfs_file.c.o
+.PHONY : client/rfs_file.o
+
+# target to build an object file
+client/rfs_file.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o
+.PHONY : client/rfs_file.c.o
+
+client/rfs_file.i: client/rfs_file.c.i
+.PHONY : client/rfs_file.i
+
+# target to preprocess a source file
+client/rfs_file.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/rfs_file.c.i
+.PHONY : client/rfs_file.c.i
+
+client/rfs_file.s: client/rfs_file.c.s
+.PHONY : client/rfs_file.s
+
+# target to generate assembly for a file
+client/rfs_file.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/rfs_file.c.s
+.PHONY : client/rfs_file.c.s
+
+client/socket_client.o: client/socket_client.c.o
+.PHONY : client/socket_client.o
+
+# target to build an object file
+client/socket_client.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/socket_client.c.o
+.PHONY : client/socket_client.c.o
+
+client/socket_client.i: client/socket_client.c.i
+.PHONY : client/socket_client.i
+
+# target to preprocess a source file
+client/socket_client.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/socket_client.c.i
+.PHONY : client/socket_client.c.i
+
+client/socket_client.s: client/socket_client.c.s
+.PHONY : client/socket_client.s
+
+# target to generate assembly for a file
+client/socket_client.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote_file_sync.dir/build.make CMakeFiles/remote_file_sync.dir/client/socket_client.c.s
+.PHONY : client/socket_client.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -214,6 +262,12 @@ help:
 	@echo "... client/file_watcher.o"
 	@echo "... client/file_watcher.i"
 	@echo "... client/file_watcher.s"
+	@echo "... client/rfs_file.o"
+	@echo "... client/rfs_file.i"
+	@echo "... client/rfs_file.s"
+	@echo "... client/socket_client.o"
+	@echo "... client/socket_client.i"
+	@echo "... client/socket_client.s"
 .PHONY : help
 
 

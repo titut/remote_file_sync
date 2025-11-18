@@ -1,9 +1,8 @@
-CMakeFiles/remote_file_sync.dir/client/file_watcher.c.o: \
- /home/koroko/Workspace/remote_file_sync/client/file_watcher.c \
+CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o: \
+ /home/koroko/Workspace/remote_file_sync/client/rfs_file.c \
  /usr/include/stdc-predef.h \
  /home/koroko/Workspace/remote_file_sync/include/file_watcher.h \
  /home/koroko/Workspace/remote_file_sync/include/socket_client.h \
- /home/koroko/Workspace/remote_file_sync/include/rfs_file.h \
  /usr/include/arpa/inet.h /usr/include/features.h \
  /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \

@@ -83,17 +83,49 @@ CMakeFiles/remote_file_sync.dir/client/file_watcher.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/remote_file_sync.dir/client/file_watcher.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/koroko/Workspace/remote_file_sync/client/file_watcher.c -o CMakeFiles/remote_file_sync.dir/client/file_watcher.c.s
 
+CMakeFiles/remote_file_sync.dir/client/socket_client.c.o: CMakeFiles/remote_file_sync.dir/flags.make
+CMakeFiles/remote_file_sync.dir/client/socket_client.c.o: ../client/socket_client.c
+CMakeFiles/remote_file_sync.dir/client/socket_client.c.o: CMakeFiles/remote_file_sync.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/koroko/Workspace/remote_file_sync/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/remote_file_sync.dir/client/socket_client.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/remote_file_sync.dir/client/socket_client.c.o -MF CMakeFiles/remote_file_sync.dir/client/socket_client.c.o.d -o CMakeFiles/remote_file_sync.dir/client/socket_client.c.o -c /home/koroko/Workspace/remote_file_sync/client/socket_client.c
+
+CMakeFiles/remote_file_sync.dir/client/socket_client.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/remote_file_sync.dir/client/socket_client.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/koroko/Workspace/remote_file_sync/client/socket_client.c > CMakeFiles/remote_file_sync.dir/client/socket_client.c.i
+
+CMakeFiles/remote_file_sync.dir/client/socket_client.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/remote_file_sync.dir/client/socket_client.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/koroko/Workspace/remote_file_sync/client/socket_client.c -o CMakeFiles/remote_file_sync.dir/client/socket_client.c.s
+
+CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o: CMakeFiles/remote_file_sync.dir/flags.make
+CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o: ../client/rfs_file.c
+CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o: CMakeFiles/remote_file_sync.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/koroko/Workspace/remote_file_sync/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o -MF CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o.d -o CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o -c /home/koroko/Workspace/remote_file_sync/client/rfs_file.c
+
+CMakeFiles/remote_file_sync.dir/client/rfs_file.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/remote_file_sync.dir/client/rfs_file.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/koroko/Workspace/remote_file_sync/client/rfs_file.c > CMakeFiles/remote_file_sync.dir/client/rfs_file.c.i
+
+CMakeFiles/remote_file_sync.dir/client/rfs_file.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/remote_file_sync.dir/client/rfs_file.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/koroko/Workspace/remote_file_sync/client/rfs_file.c -o CMakeFiles/remote_file_sync.dir/client/rfs_file.c.s
+
 # Object files for target remote_file_sync
 remote_file_sync_OBJECTS = \
-"CMakeFiles/remote_file_sync.dir/client/file_watcher.c.o"
+"CMakeFiles/remote_file_sync.dir/client/file_watcher.c.o" \
+"CMakeFiles/remote_file_sync.dir/client/socket_client.c.o" \
+"CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o"
 
 # External object files for target remote_file_sync
 remote_file_sync_EXTERNAL_OBJECTS =
 
 bin/remote_file_sync: CMakeFiles/remote_file_sync.dir/client/file_watcher.c.o
+bin/remote_file_sync: CMakeFiles/remote_file_sync.dir/client/socket_client.c.o
+bin/remote_file_sync: CMakeFiles/remote_file_sync.dir/client/rfs_file.c.o
 bin/remote_file_sync: CMakeFiles/remote_file_sync.dir/build.make
 bin/remote_file_sync: CMakeFiles/remote_file_sync.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/koroko/Workspace/remote_file_sync/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable bin/remote_file_sync"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/koroko/Workspace/remote_file_sync/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking C executable bin/remote_file_sync"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/remote_file_sync.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
