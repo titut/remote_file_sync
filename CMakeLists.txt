@@ -27,6 +27,14 @@ include_directories(${INCLUDE_DIRS})
 file(GLOB_RECURSE LIB_INC_FILES include/*.h)
 install(FILES ${LIB_INC_FILES} DESTINATION include)
 
-set(SOURCE_FILES client/file_watcher.c include/file_watcher.h)
+set(SOURCE_FILES
+    client/file_watcher.c
+    client/socket_client.c
+    client/rfs_file.c
+    include/file_watcher.h
+    include/socket_client.h
+    include/rfs_file.h
+)
+
 add_executable(remote_file_sync ${SOURCE_FILES})
 #target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_LIB)

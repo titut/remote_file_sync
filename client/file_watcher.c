@@ -1,5 +1,7 @@
 // file_watcher.c
 #include "file_watcher.h"
+#include "socket_client.h"
+#include "rfs_file.h"
 #include <arpa/inet.h>
 #include <sys/inotify.h>
 #include <sys/stat.h>
@@ -12,11 +14,34 @@
 #include <string.h>
 #include <limits.h>
 #include <errno.h>
+#include <pthread.h>
+#include <signal.h>
 
 #define EVENT_SIZE  (sizeof(struct inotify_event))
 #define BUF_LEN     (1024 * (EVENT_SIZE + 16))
+// read 4kb of file at a time
+#define SOCKET_CHUNK 4096
+#define IP "192.168.16.178"
+#define PORT        8080
 
-void start_file_watcher(const char *path) {
+struct args {
+    int new_message;
+    char* message;
+    char* file_path;
+};
+
+char file_path[50];
+char folder_path[50];
+const char* home;
+
+void init_file_path(){
+    home = getenv("HOME");
+
+    snprintf(file_path, sizeof(file_path), "%s/rfs/rfs.py", home);
+    snprintf(folder_path, sizeof(folder_path), "%s/rfs", home);
+}
+
+void* start_file_watcher(void* arg) {
     int fd, wd;
     char buffer[BUF_LEN];
 
@@ -30,13 +55,13 @@ void start_file_watcher(const char *path) {
     printf("inotify initialized!\n");
 
     // Add a watch to the directory and catch err
-    wd = inotify_add_watch(fd, path, IN_CREATE | IN_MODIFY | IN_DELETE);
+    wd = inotify_add_watch(fd, file_path, IN_CREATE | IN_MODIFY | IN_DELETE);
     if (wd == -1) {
-        fprintf(stderr, "Cannot watch '%s'\n", path);
+        fprintf(stderr, "Cannot watch '%s'\n", file_path);
         exit(EXIT_FAILURE);
     }
 
-    printf("Watching directory: %s\n", path);
+    printf("Watching directory: %s\n\n", file_path);
 
     // Event loop
     while (1) {
@@ -49,19 +74,23 @@ void start_file_watcher(const char *path) {
         int i = 0;
         while (i < length) {
             struct inotify_event *event = (struct inotify_event *)&buffer[i];
-            if (event->len) {
-                if (event->mask & IN_CREATE)
-                    printf("File created: %s\n", event->name);
-                else if (event->mask & IN_MODIFY)
-                    printf("File modified: %s\n", event->name);
-                else if (event->mask & IN_DELETE)
-                    printf("File deleted: %s\n", event->name);
-
-                // Call sync callback
-                /*if (on_change && (event->mask & (IN_CREATE | IN_MODIFY)))
-                    on_change(event->name);
-                */
+            if (event->mask & IN_CREATE){
+                printf("File created\n");
+                ((struct args*)arg)->message = "File created";
+            } else if (event->mask & IN_MODIFY) {
+                printf("File modified\n");
+                ((struct args*)arg)->message = "File modified";
             }
+            else if (event->mask & IN_DELETE) {
+                printf("File deleted\n");
+                ((struct args*)arg)->message = "File deleted";
+            }
+            ((struct args*)arg)->new_message=1;
+
+            // Call sync callback
+            /*if (on_change && (event->mask & (IN_CREATE | IN_MODIFY)))
+                on_change(event->name);
+            */
             i += EVENT_SIZE + event->len;
         }
     }
@@ -71,63 +100,36 @@ void start_file_watcher(const char *path) {
     close(fd);
 }
 
-int check_rfs_folder_exists(){
-    const char* directoryPath = "/opt/rfs"; // Replace with your directory path
-    struct stat sb;
-
-    if (stat(directoryPath, &sb) == 0 && S_ISDIR(sb.st_mode)) {
-        printf("Directory '%s' exists.\n", directoryPath);
-        return 1;
-    } else {
-        printf("Directory '%s' does not exist or is not a directory.\n", directoryPath);
-        return 0;
-    }
-}
-
-void create_rfs_folder(){
-    // create fork to call mkdir using exec
-    pid_t child_pid = fork();
-
-    if(child_pid < 0){
-        // fork failed
-        perror("fork failed");
-        exit(EXIT_FAILURE);
-    } else if(child_pid == 0){
-        // child process: create the folder
-        char *args[]={"mkdir", "/opt/rfs", NULL};
-        execvp(args[0], args);
-        puts("/opt/rfs folder created");
-
-        perror("folder creation failed");
-        printf("errno: %d\n", errno);
-        exit(EXIT_FAILURE);
-    } else {
-        // parent process: wait for child process to complete
-        int status;
-        printf("Parent: waiting for child (PID %d)...\n", child_pid);
-        wait(&status);
-
-        if (WIFEXITED(status)) {
-            printf("Child exited normally with code %d\n", WEXITSTATUS(status));
-        } else {
-            printf("Child exited abnormally\n");
-        }
-
-        printf("Continuing to watcher now.\n");
-    }
-}
-
 int main(void){
-    // Check if RFS folder exists
-    int rfs_is_folder = check_rfs_folder_exists();
-    if(rfs_is_folder){
-        puts("/opt/rfs folder exist");
-    } else {
-        puts("/opt/rfs does not exist");
-        create_rfs_folder();
+    init_file_path();
+    // Check if RFS file exists, if not create it
+    create_rfs_folder(folder_path);
+    int rfs_is_folder = check_rfs_file_exists(file_path);
+    if(!rfs_is_folder){
+        create_rfs_file(file_path);
     }
 
-    // Start watcher
-    start_file_watcher("/opt/rfs");
+    // Thread 1: File Watcher
+    // Thread 2: Socket Thread
+    pthread_t file_watcher_thread;
+    pthread_t socket_thread;
+
+    // args pointer will be used to communicate between the two threads
+    struct args* arguments = malloc(sizeof(struct args));
+    arguments->new_message=0;
+    arguments->message="";
+    arguments->file_path=file_path;
+
+    // Start watcher thread
+    pthread_create(&socket_thread, NULL, socket_client, arguments);
+    pthread_create(&file_watcher_thread, NULL, start_file_watcher, arguments);
+
+    // Wait for thread to finish
+    pthread_join(socket_thread, NULL);
+    pthread_join(file_watcher_thread, NULL);
+
+    free(arguments->message);
+    free(arguments);
+
     return 0;
 }
