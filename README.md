@@ -66,7 +66,7 @@ make
 
 6. Edit rfs.py (you can open it up in IDE or use vim, etc.)
 ```bash
-sudo nano ~/rfs/rfs.py
+sudo nano ~/rfs/main.py
 ```
 
 7. See the changes on the other devices `~/rfs/main.py`
