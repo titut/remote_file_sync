@@ -3,7 +3,7 @@
 **Technical concepts**: TCP Sockets • POSIX Threads • Concurrency • Fork (executive commands) • Inotify • File/path manipulation
 
 Mutli-client file sharing system written in C\
-Clients spawn a local file, `~/rfs/rfs.py`, and watches for modifications\
+Clients spawn a local file, `~/rfs/main.py`, and watches for modifications\
 Clients connect to a central server and sends these modifications to the server in real time\
 Clients fetches new changes from server and applies them to local file\
 Server receives file data and merges it with server-local file\
@@ -17,7 +17,7 @@ Client creates two pthreads (send and receive), and the server uses one thread p
 ## Features
 - Multi-client TCP Sockets 
 - Inotify to watch modifications of file
-- Ensuring ~/rfs/rfs.py file exists (working on all linux devices)
+- Ensuring ~/rfs/main.py file exists (working on all linux devices)
 - Client has send/receive threads
 - Server creates pthread for every client
 - Forking to use executive commands of creating files/folders
