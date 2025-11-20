@@ -69,7 +69,7 @@ make
 sudo nano ~/rfs/rfs.py
 ```
 
-7. See the changes on the other devices `~/rfs/rfs.py`
+7. See the changes on the other devices `~/rfs/main.py`
 
 ## Contributors
 **Bill Le**: https://bill-le.info
