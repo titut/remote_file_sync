@@ -85,4 +85,5 @@ CMakeFiles/client.dir/client/file_watcher.c.o: \
  /usr/include/x86_64-linux-gnu/bits/signum-generic.h \
  /usr/include/x86_64-linux-gnu/bits/signum-arch.h \
  /usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h \
- /usr/include/x86_64-linux-gnu/bits/signal_ext.h
+ /usr/include/x86_64-linux-gnu/bits/signal_ext.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdatomic.h
