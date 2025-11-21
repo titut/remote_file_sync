@@ -1,4 +1,5 @@
 // file_watcher.c
+#define _GNU_SOURCE
 #include "file_watcher.h"
 #include "socket_client.h"
 #include "rfs_file.h"
@@ -17,6 +18,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <stdatomic.h>
+#include <inttypes.h>
 
 #define EVENT_SIZE  (sizeof(struct inotify_event))
 #define BUF_LEN     (1024 * (EVENT_SIZE + 16))
@@ -24,13 +26,6 @@
 #define SOCKET_CHUNK 4096
 #define IP "192.168.16.178"
 #define PORT        8080
-
-struct args {
-    int new_message;
-    int client_fd;
-    char* message;
-    char* file_path;
-};
 
 // file watcher variables
 int fd, wd;
@@ -55,6 +50,8 @@ void init_file_path(){
 }
 
 void* start_file_watcher(void* arg) {
+    struct args *a = (struct args *)arg;
+    int fd, wd;
     char buffer[BUF_LEN];
 
     // Initialize inotify and catch err
@@ -67,18 +64,19 @@ void* start_file_watcher(void* arg) {
     printf("inotify initialized!\n");
 
     // Add a watch to the directory and catch err
-    wd = inotify_add_watch(fd, file_path, IN_CREATE | IN_MODIFY | IN_DELETE);
+    wd = inotify_add_watch(fd, folder_path, IN_CREATE | IN_MODIFY | IN_DELETE);
     if (wd == -1) {
-        fprintf(stderr, "Cannot watch '%s'\n", file_path);
+        fprintf(stderr, "Cannot watch '%s'\n", folder_path);
+        close(fd);
         exit(EXIT_FAILURE);
     }
-
-    printf("Watching directory: %s\n\n", file_path);
+    printf("Watching directory: %s\n\n", folder_path);
 
     // Event loop
     while (!stop_flag) {
         int length = read(fd, buffer, BUF_LEN);
         if (length < 0) {
+            if (errno == EINTR) continue;
             perror("read");
             break;
         }
@@ -86,19 +84,25 @@ void* start_file_watcher(void* arg) {
         int i = 0;
         while (i < length) {
             struct inotify_event *event = (struct inotify_event *)&buffer[i];
-            if (event->mask & IN_CREATE){
-                printf("File created\n");
-                ((struct args*)arg)->message = "File created";
-            } else if (event->mask & IN_MODIFY) {
-                printf("File modified\n");
-                ((struct args*)arg)->message = "File modified";
-            }
-            else if (event->mask & IN_DELETE) {
-                printf("File deleted\n");
-                ((struct args*)arg)->message = "File deleted";
-            }
-            ((struct args*)arg)->new_message=1;
 
+            if (event->len) {
+                if (strcmp(event->name, "main.py") == 0) {
+                    if (event->mask & IN_CREATE) 
+                        printf("File created: %s\n", event->name);
+                    else if (event->mask & IN_MODIFY) 
+                        printf("File modified: %s\n", event->name);
+                    else if (event->mask & IN_DELETE) 
+                        printf("File deleted: %s\n", event->name);
+
+                    pthread_mutex_lock(&a->mu);
+                    if (a->suppress_next) {
+                        a->suppress_next = 0;
+                    } else {
+                        a->new_message = 1;
+                    }
+                    pthread_mutex_unlock(&a->mu);
+                }
+            }
             // Call sync callback
             /*if (on_change && (event->mask & (IN_CREATE | IN_MODIFY)))
                 on_change(event->name);
@@ -134,24 +138,26 @@ int main(void){
 
     // args pointer will be used to communicate between the two threads
     struct args* arguments = malloc(sizeof(struct args));
-    arguments->new_message=0;
-    arguments->message="";
-    arguments->file_path=file_path;
-    arguments->client_fd=start_client(&stop_flag);
+    if (!arguments) {
+        perror("malloc failed");
+        exit(EXIT_FAILURE);
+    }
+    arguments->new_message = 0;
+    arguments->message     = NULL;
+    arguments->file_path   = file_path;
+    arguments->last_version = 0;
+    arguments->suppress_next = 0;
+    pthread_mutex_init(&arguments->mu, NULL);
 
     // Start watcher thread
-    pthread_create(&socket_thread, NULL, send_thread, arguments);
+    pthread_create(&socket_thread, NULL, socket_client, arguments);
     pthread_create(&file_watcher_thread, NULL, start_file_watcher, arguments);
 
     // Wait for thread to finish
     pthread_join(socket_thread, NULL);
-    pthread_cancel(file_watcher_thread);
     pthread_join(file_watcher_thread, NULL);
 
-    printf("Cleaning up\n");
-    close_file_watcher();
-    close_client(arguments->client_fd);
-    printf("free arguments\n");
+    pthread_mutex_destroy(&arguments->mu);
     free(arguments);
 
     return 0;

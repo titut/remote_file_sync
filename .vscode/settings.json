@@ -1,7 +1,11 @@
 {
     "files.associations": {
         "unistd.h": "c",
+<<<<<<< HEAD
         "inet.h": "c",
         "stdatomic.h": "c"
+=======
+        "inet.h": "c"
+>>>>>>> darian
     }
 }

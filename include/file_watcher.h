@@ -2,16 +2,18 @@
 #ifndef FILE_WATCHER_H
 #define FILE_WATCHER_H
 
+#include <stdint.h>
+#include <pthread.h>
+
+struct args {
+    int new_message;
+    char *message;
+    char *file_path;
+    uint64_t last_version;
+    int suppress_next;
+    pthread_mutex_t mu;
+};
+
 void* start_file_watcher(void* arg);
-
-void* socket_client(void* arg);
-
-int check_rfs_folder_exists();
-
-void create_rfs_file();
-
-void create_rfs_folder();
-
-int send_file(int socket, char* path);
 
 #endif
