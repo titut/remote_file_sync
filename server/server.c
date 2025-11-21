@@ -73,7 +73,6 @@ static int write_full(int fd, const void *buf, size_t n) {
     return 1;
 }
 
-
 /* --<>-- Frame encode/decode --<>-- */
 // Send: [uint32_be length][uint8 type][payload…], length = 1 + payload.
 static int send_frame(int fd, uint8_t type, const uint8_t *payload,

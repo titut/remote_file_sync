@@ -1,6 +1,6 @@
 # Remote File Sync  
 
-**Technical concepts**: TCP Sockets • POSIX Threads • Concurrency • Fork (executive commands) • Inotify • File/path manipulation
+**Technical concepts**: TCP Sockets, POSIX Threads, Concurrency, Fork (executive commands), Inotify, File/path manipulation
 
 Mutli-client file sharing system written in C\
 Clients spawn a local file, `~/rfs/rfs.py`, and watches for modifications\
@@ -8,7 +8,7 @@ Clients connect to a central server and sends these modifications to the server 
 Clients fetches new changes from server and applies them to local file\
 Server receives file data and merges it with server-local file\
 Server broadcasts changes to all connected clients\
-Client creates two pthreads (send and receive), and the server uses one thread per client\
+Client creates three pthreads (filewatch, send, and receive), and the server uses one thread per client
 
 **MVP**: Two people can edit a file through their clients while connected to the central server.
 

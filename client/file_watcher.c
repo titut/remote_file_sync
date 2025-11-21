@@ -16,6 +16,7 @@
 #include <errno.h>
 #include <pthread.h>
 #include <signal.h>
+#include <stdatomic.h>
 
 #define EVENT_SIZE  (sizeof(struct inotify_event))
 #define BUF_LEN     (1024 * (EVENT_SIZE + 16))
@@ -26,13 +27,25 @@
 
 struct args {
     int new_message;
+    int client_fd;
     char* message;
     char* file_path;
 };
 
+// file watcher variables
+int fd, wd;
+
+// path variables
 char file_path[50];
 char folder_path[50];
 const char* home;
+
+volatile sig_atomic_t stop_flag = 0;
+
+void handle_sigint(int sig) {
+    stop_flag = 1;
+    printf("\nStopping...\n");
+}
 
 void init_file_path(){
     home = getenv("HOME");
@@ -42,7 +55,6 @@ void init_file_path(){
 }
 
 void* start_file_watcher(void* arg) {
-    int fd, wd;
     char buffer[BUF_LEN];
 
     // Initialize inotify and catch err
@@ -64,7 +76,7 @@ void* start_file_watcher(void* arg) {
     printf("Watching directory: %s\n\n", file_path);
 
     // Event loop
-    while (1) {
+    while (!stop_flag) {
         int length = read(fd, buffer, BUF_LEN);
         if (length < 0) {
             perror("read");
@@ -94,13 +106,19 @@ void* start_file_watcher(void* arg) {
             i += EVENT_SIZE + event->len;
         }
     }
+}
 
+void close_file_watcher(){
     // Cleanup
     inotify_rm_watch(fd, wd);
     close(fd);
+    printf("File watcher cleaned\n");
 }
 
 int main(void){
+    // Handle Ctrl + C
+    signal(SIGINT, handle_sigint);
+
     init_file_path();
     // Check if RFS file exists, if not create it
     create_rfs_folder(folder_path);
@@ -119,16 +137,21 @@ int main(void){
     arguments->new_message=0;
     arguments->message="";
     arguments->file_path=file_path;
+    arguments->client_fd=start_client(&stop_flag);
 
     // Start watcher thread
-    pthread_create(&socket_thread, NULL, socket_client, arguments);
+    pthread_create(&socket_thread, NULL, send_thread, arguments);
     pthread_create(&file_watcher_thread, NULL, start_file_watcher, arguments);
 
     // Wait for thread to finish
     pthread_join(socket_thread, NULL);
+    pthread_cancel(file_watcher_thread);
     pthread_join(file_watcher_thread, NULL);
 
-    free(arguments->message);
+    printf("Cleaning up\n");
+    close_file_watcher();
+    close_client(arguments->client_fd);
+    printf("free arguments\n");
     free(arguments);
 
     return 0;

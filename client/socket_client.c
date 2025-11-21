@@ -6,23 +6,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <signal.h>
+#include <stdatomic.h>
 
 // read 4kb of file at a time
 #define SOCKET_CHUNK 4096
-#define IP "192.168.16.178"
+#define IP "127.0.0.1"
 #define PORT        8080
 
 struct args {
     int new_message;
+    int client_fd;
     char* message;
     char* file_path;
 };
 
-void* socket_client(void* arg){
+volatile sig_atomic_t* stop_flag_addr;
+
+int start_client(volatile sig_atomic_t* flag_addr){
+    //set stop flag address
+    stop_flag_addr = flag_addr;
+
     // Create socket (client-side)
     int socket_status, valread, client_fd;
     struct sockaddr_in serv_addr;
-    char* msg = "Hello from client";
     char buffer[1024] = { 0 };
 
     // Create socket endpoint
@@ -46,21 +53,28 @@ void* socket_client(void* arg){
         exit(EXIT_FAILURE);
     }
 
-    while(1){
+    return client_fd;
+}
+
+void* send_thread(void* arg){
+    while(!*stop_flag_addr){
         if(((struct args*)arg)->new_message){
             // Send message to socket
-            send_file(client_fd, ((struct args*)arg)->file_path);
+            send_file(((struct args*)arg)->client_fd, ((struct args*)arg)->file_path);
             puts("Message sent");
             ((struct args*)arg)->new_message = 0;
         }
     }
+}
 
+void close_client(int client_fd){
     // Close connection
     close(client_fd);
     puts("Client closed");
 }
 
 int send_file(int socket, char* path){
+    // Open file
     FILE *fp = fopen(path, "rb");
     if(!fp){
         perror("Failed to open file!");
@@ -70,9 +84,12 @@ int send_file(int socket, char* path){
     char buffer[SOCKET_CHUNK];
     size_t bytes_read;
 
+    // read file and assign it to buffer
     while ((bytes_read = fread(buffer, 1, SOCKET_CHUNK, fp)) > 0) {
         size_t total_sent = 0;
-
+        
+        // send information in buffer
+        // loop to make sure all of buffer has been sent
         while (total_sent < bytes_read) {
             ssize_t sent = send(socket, buffer + total_sent, bytes_read - total_sent, 0);
             if (sent <= 0) {
