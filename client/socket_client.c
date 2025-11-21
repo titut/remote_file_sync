@@ -13,15 +13,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <netdb.h>
 
 #define IP "192.168.16.178"
-#define PORT 9000
+#define PORT "9000"
 #define MAX_MSG (8u * 1024u * 1024u)  // 8 MB
+
+#define SERVER_HOST "raspberrypi.local" 
+#define SERVER_PORT_STR "9000"
 
 /* --<>-- Message Types --<>-- */
 enum MsgType {
@@ -78,8 +80,7 @@ static int write_full(int fd, const void* buf, size_t n) {
 } 
 
 // send_frame: send one protocol frame
-static int send_frame(int fd, uint8_t type, const uint8_t* payload,
-                      uint32_t plen) {
+static int send_frame(int fd, uint8_t type, const uint8_t* payload, uint32_t plen) {
   uint32_t len = 1u + plen;
   uint32_t be_len = htonl(len); // header length
   uint8_t hdr[5];
@@ -94,8 +95,7 @@ static int send_frame(int fd, uint8_t type, const uint8_t* payload,
 }
 
 // recv_frame: read one full frame from the socket
-static int recv_frame(int fd, uint8_t* type_out, uint8_t** payload_out,
-                      uint32_t* plen_out) {
+static int recv_frame(int fd, uint8_t* type_out, uint8_t** payload_out, uint32_t* plen_out) {
   uint32_t be_len;
   int r = read_full(fd, &be_len, 4);
   if (r <= 0) return r; // EOF or error
@@ -125,29 +125,52 @@ static int recv_frame(int fd, uint8_t* type_out, uint8_t** payload_out,
 }
 
 /* --<>-- Connect to server --<>-- */
+// Now with getaddrinfo
 // Open TCP connection, return socket fd on success
 static int connect_to_server(void) {
-  int fd = socket(AF_INET, SOCK_STREAM, 0);
-  if (fd < 0) return -1;
+  struct addrinfo hints, *res = NULL, *rp = NULL;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_UNSPEC; // allow IPv4 or IPv6
+  hints.ai_socktype = SOCK_STREAM; // TCP
 
-  struct sockaddr_in addr;
-  memset(&addr, 0, sizeof(addr));
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(PORT);
-
-  // Convert dotted IP string
-  if (inet_pton(AF_INET, IP, &addr.sin_addr) != 1) {
-    close(fd);
+  int gai = getaddrinfo(SERVER_HOST, SERVER_PORT_STR, &hints, &res);
+  if (gai != 0){
+    fprintf(stderr, "[client] getaddrinfo(%s:%s): %s\n", SERVER_HOST, SERVER_PORT_STR, gai_strerror(gai));
     return -1;
   }
 
-  // Actually connect
-  if (connect(fd, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
+  int fd = -1;
+  for (rp = res; rp != NULL; rp = rp->ai_next){
+    fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+    if (fd < 0) {
+      perror("[client] socket");
+      continue;
+    }
+
+    if (connect(fd, rp->ai_addr, rp->ai_addrlen) == 0) {
+      // Success
+      break;
+    }
+
+    if (errno == ECONNREFUSED) {
+      fprintf(stderr, "[client] connection refused to %s:%s\n",
+              SERVER_HOST, SERVER_PORT_STR);
+    } else if (errno == ETIMEDOUT) {
+      fprintf(stderr, "[client] connection timed out to %s:%s\n",
+              SERVER_HOST, SERVER_PORT_STR);
+    } else if (errno == EHOSTUNREACH || errno == ENETUNREACH) {
+      fprintf(stderr, "[client] host/network unreachable to %s:%s\n",
+              SERVER_HOST, SERVER_PORT_STR);
+    } else {
+      perror("[client] connect");
+    }
+
     close(fd);
-    return -1;
+    fd = -1;
   }
 
-  return fd;
+  freeaddrinfo(res);
+  return fd; // -1 if all attempts failed
 }
 
 /* --<>-- Pull from server --<>-- */
@@ -217,7 +240,6 @@ static void pull_from_server(struct args* a) {
 static void push_to_server(struct args* a) {
   uint8_t* data = NULL;
   uint32_t len = 0;
-
   // Read the current local file into memory
   if (read_file_into_buf(a->file_path, &data, &len) != 0) {
     free(data);

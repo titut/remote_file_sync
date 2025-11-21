@@ -369,24 +369,32 @@ static void *client_thread(void *arg) {
 
 /* --<>-- Listener setup --<>-- */
 static int listen_on(uint16_t port) {
-    int fd = socket(AF_INET, SOCK_STREAM, 0); // TCP Socket
+    int fd = socket(AF_INET6, SOCK_STREAM, 0); // TCP Socket
     if (fd < 0) return -1;
 
     int one = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)); // Reuse addr
 
-    struct sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET; // IPv4
-    addr.sin_addr.s_addr = htonl(INADDR_ANY); // Listen on all interfaces
-    addr.sin_port = htons(port); // Port
+// Allow both IPv4 and IPv6
+#ifdef IPV6_V6ONLY
+    int v6only = 0;
+    setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &v6only, sizeof(v6only));
+#endif
 
-    if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
+    struct sockaddr_in6 addr6;
+    memset(&addr6, 0, sizeof(addr6));
+    addr6.sin6_family = AF_INET6; // IPv4
+    addr6.sin6_addr   = in6addr_any; // Listen on all interfaces
+    addr6.sin6_port   = htons(port); // Port
+
+    if (bind(fd, (struct sockaddr *)&addr6, sizeof(addr6)) != 0) {
+        perror("bind");
         close(fd);
         return -1;
     }
 
     if (listen(fd, BACKLOG) != 0) { // Start listening 
+        perror("listen");
         close(fd);
         return -1;
     }
@@ -433,7 +441,7 @@ int main(int argc, char **argv) {
             g_state.path, (unsigned)port, g_state.version);
 
     for (;;) { // Main accept loop 
-        struct sockaddr_in cli;
+        struct sockaddr_storage cli;
         socklen_t slen = sizeof(cli);
         int cfd = accept(lfd, (struct sockaddr *)&cli, &slen); // Wait for client
         if (cfd < 0) {
@@ -444,8 +452,7 @@ int main(int argc, char **argv) {
 
         pthread_t th;
         // Spawn thread to handle client 
-        if (pthread_create(&th, NULL, client_thread, 
-                            (void *)(intptr_t)cfd) != 0) {
+        if (pthread_create(&th, NULL, client_thread, (void *)(intptr_t)cfd) != 0) {
             close(cfd); // Failed to create thread, close
             continue;
         }
