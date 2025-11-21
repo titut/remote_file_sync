@@ -111,7 +111,6 @@ void* start_file_watcher(void* arg) {
 }
 
 int main(void){
-    signal(SIGPIPE, SIG_IGN); // Do I need this?
     init_file_path();
 
     // Check if RFS file exists, if not create it

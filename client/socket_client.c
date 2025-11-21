@@ -43,6 +43,7 @@ static uint64_t htonll(uint64_t x) {
   return x;
 #endif
 }
+
 static uint64_t ntohll(uint64_t x) { return htonll(x); }
 
 /* --<>-- IO helpers --<>-- */
@@ -331,7 +332,7 @@ void* socket_client(void* arg) {
   // Initial pull to sync local file with local change
   pull_from_server(a);
 
-  for (;;) {
+  while(1) {
     // If file changed, push
     pthread_mutex_lock(&a->mu);
     int need_push = a->new_message;
