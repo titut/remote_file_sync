@@ -8,6 +8,7 @@
 
 struct args {
     int new_message;
+    int pipefd[2];
     char *message;
     char *file_path;
     uint64_t last_version;

@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <netdb.h>
+#include <poll.h>
 
 #define IP "127.0.0.1"
 #define PORT "8080"
@@ -329,31 +330,46 @@ static void push_to_server(struct args* a) {
 void* socket_client(void* arg) {
   struct args* a = (struct args*)arg;
 
+  // poll to refresh if nothing received from read
+  struct pollfd pfd = {
+      .fd = a->pipefd[0],
+      .events = POLLIN
+  };
+
   // Initial pull to sync local file with local change
   pull_from_server(a);
 
   while(!*(a->stop_flag_addr)) {
-    printf("stop flag: %d\n", *(a->stop_flag_addr));
-    // If file changed, push
-    pthread_mutex_lock(&a->mu);
-    int need_push = a->new_message;
-    if (need_push) {
-      a->new_message = 0; // consume flag
-    }
-    pthread_mutex_unlock(&a->mu);
+    int ret = poll(&pfd, 1, 100); // timeout every 500ms so loop can check stop_flag
 
-    // If there was a local change, push new content to the server
-    if (need_push) {
+    if (ret < 0) {
+        if (errno == EINTR) continue;
+        perror("poll");
+        break;
+    }
+
+    if (ret == 0) continue; // timeout → check stop_flag again
+
+    if (pfd.revents & POLLIN) {
+
+      // If file changed, push
+      char buf[100];
+      read(a->pipefd[0], buf, sizeof(buf));
+
+      // Check whether read was the shutdown signal
+      if (buf[0] == 'X') {
+          printf("Reader thread exiting...\n");
+          break;
+      }
+
       push_to_server(a);
+
+      // Pull from server periodically
+      pull_from_server(a);
+
+      usleep(100000);  // 100ms delay
     }
-
-    // Pull from server periodically
-    pull_from_server(a);
-
-    usleep(100000);  // 100ms delay
   }
-
-  printf("stop!\n");
 
   return NULL;
 }

@@ -32,11 +32,16 @@ char file_path[50];
 char folder_path[50];
 const char* home;
 
+// Ctrl + C handling variables
 volatile sig_atomic_t stop_flag = 0;
+
+
+struct args* arguments;
 
 void handle_sigint(int sig) {
     stop_flag = 1;
-    printf("\nStopping...\n");
+    write(arguments->pipefd[1], "X", 1);
+    printf("\nCtrl+C detected\n");
 }
 
 void init_file_path(void) {
@@ -113,10 +118,12 @@ void* start_file_watcher(void* arg) {
                         pthread_mutex_lock(&a->mu);
                         if (a->suppress_next) {
                             a->suppress_next = 0;
-                        } else {
-                            a->new_message = 1;
                         }
                         pthread_mutex_unlock(&a->mu);
+
+                        // Send message to pipe
+                        char* msg = "modify";
+                        write(a->pipefd[1], msg, strlen(msg) + 1);
                     }
                 }
                 // Call sync callback
@@ -154,7 +161,7 @@ int main(void){
     pthread_t socket_thread;
 
     // args pointer will be used to communicate between the two threads
-    struct args* arguments = malloc(sizeof(struct args));
+    arguments = malloc(sizeof(struct args));
     if (!arguments) {
         perror("malloc failed");
         exit(EXIT_FAILURE);
@@ -166,6 +173,12 @@ int main(void){
     arguments->suppress_next = 0;
     arguments->stop_flag_addr = &stop_flag;
     pthread_mutex_init(&arguments->mu, NULL);
+
+    // Create pipe
+    if(pipe(arguments->pipefd) == -1){
+        perror("Pipe failed!");
+        exit(EXIT_FAILURE);
+    }
 
     // Start watcher thread
     pthread_create(&socket_thread, NULL, socket_client, arguments);
