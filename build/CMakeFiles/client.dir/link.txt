@@ -1,1 +1,0 @@
-/usr/bin/cc  -std=c99 CMakeFiles/client.dir/client/file_watcher.c.o CMakeFiles/client.dir/client/socket_client.c.o CMakeFiles/client.dir/client/rfs_file.c.o -o bin/client 

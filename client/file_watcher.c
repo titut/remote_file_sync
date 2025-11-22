@@ -19,13 +19,10 @@
 #include <signal.h>
 #include <stdatomic.h>
 #include <inttypes.h>
+#include <poll.h>
 
 #define EVENT_SIZE  (sizeof(struct inotify_event))
 #define BUF_LEN     (1024 * (EVENT_SIZE + 16))
-// read 4kb of file at a time
-#define SOCKET_CHUNK 4096
-#define IP "192.168.16.178"
-#define PORT        8080
 
 // file watcher variables
 int fd, wd;
@@ -42,16 +39,18 @@ void handle_sigint(int sig) {
     printf("\nStopping...\n");
 }
 
-void init_file_path(){
+void init_file_path(void) {
     home = getenv("HOME");
-
-    snprintf(file_path, sizeof(file_path), "%s/rfs/rfs.py", home);
+    if (!home) {
+        fprintf(stderr, "Could not get HOME environment variable\n");
+        exit(EXIT_FAILURE);
+    }
+    snprintf(file_path, sizeof(file_path), "%s/rfs/main.py", home);
     snprintf(folder_path, sizeof(folder_path), "%s/rfs", home);
 }
 
 void* start_file_watcher(void* arg) {
     struct args *a = (struct args *)arg;
-    int fd, wd;
     char buffer[BUF_LEN];
 
     // Initialize inotify and catch err
@@ -72,42 +71,60 @@ void* start_file_watcher(void* arg) {
     }
     printf("Watching directory: %s\n\n", folder_path);
 
+
+    struct pollfd pfd = {
+        .fd = fd,
+        .events = POLLIN
+    };
+
     // Event loop
     while (!stop_flag) {
-        int length = read(fd, buffer, BUF_LEN);
-        if (length < 0) {
+        int ret = poll(&pfd, 1, 500); // timeout every 500ms so loop can check stop_flag
+
+        if (ret < 0) {
             if (errno == EINTR) continue;
-            perror("read");
+            perror("poll");
             break;
         }
 
-        int i = 0;
-        while (i < length) {
-            struct inotify_event *event = (struct inotify_event *)&buffer[i];
+        if (ret == 0) continue; // timeout → check stop_flag again
 
-            if (event->len) {
-                if (strcmp(event->name, "main.py") == 0) {
-                    if (event->mask & IN_CREATE) 
-                        printf("File created: %s\n", event->name);
-                    else if (event->mask & IN_MODIFY) 
-                        printf("File modified: %s\n", event->name);
-                    else if (event->mask & IN_DELETE) 
-                        printf("File deleted: %s\n", event->name);
-
-                    pthread_mutex_lock(&a->mu);
-                    if (a->suppress_next) {
-                        a->suppress_next = 0;
-                    } else {
-                        a->new_message = 1;
-                    }
-                    pthread_mutex_unlock(&a->mu);
-                }
+        if (pfd.revents & POLLIN) {
+            int length = read(fd, buffer, BUF_LEN);
+            if (length < 0) {
+                if (errno == EINTR) continue;
+                perror("read");
+                break;
             }
-            // Call sync callback
-            /*if (on_change && (event->mask & (IN_CREATE | IN_MODIFY)))
-                on_change(event->name);
-            */
-            i += EVENT_SIZE + event->len;
+
+            int i = 0;
+            while (i < length) {
+                struct inotify_event *event = (struct inotify_event *)&buffer[i];
+
+                if (event->len) {
+                    if (strcmp(event->name, "main.py") == 0) {
+                        if (event->mask & IN_CREATE) 
+                            printf("File created: %s\n", event->name);
+                        else if (event->mask & IN_MODIFY) 
+                            printf("File modified: %s\n", event->name);
+                        else if (event->mask & IN_DELETE) 
+                            printf("File deleted: %s\n", event->name);
+
+                        pthread_mutex_lock(&a->mu);
+                        if (a->suppress_next) {
+                            a->suppress_next = 0;
+                        } else {
+                            a->new_message = 1;
+                        }
+                        pthread_mutex_unlock(&a->mu);
+                    }
+                }
+                // Call sync callback
+                /*if (on_change && (event->mask & (IN_CREATE | IN_MODIFY)))
+                    on_change(event->name);
+                */
+                i += EVENT_SIZE + event->len;
+            }
         }
     }
 }
@@ -147,6 +164,7 @@ int main(void){
     arguments->file_path   = file_path;
     arguments->last_version = 0;
     arguments->suppress_next = 0;
+    arguments->stop_flag_addr = &stop_flag;
     pthread_mutex_init(&arguments->mu, NULL);
 
     // Start watcher thread
@@ -157,6 +175,8 @@ int main(void){
     pthread_join(socket_thread, NULL);
     pthread_join(file_watcher_thread, NULL);
 
+    printf("Safe clean up...\n");
+    close_file_watcher();
     pthread_mutex_destroy(&arguments->mu);
     free(arguments);
 

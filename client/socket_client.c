@@ -18,8 +18,8 @@
 #include <limits.h>
 #include <netdb.h>
 
-#define IP "192.168.16.178"
-#define PORT "9000"
+#define IP "127.0.0.1"
+#define PORT "8080"
 #define MAX_MSG (8u * 1024u * 1024u)  // 8 MB
 
 #define SERVER_HOST "raspberrypi.local" 
@@ -332,7 +332,8 @@ void* socket_client(void* arg) {
   // Initial pull to sync local file with local change
   pull_from_server(a);
 
-  while(1) {
+  while(!*(a->stop_flag_addr)) {
+    printf("stop flag: %d\n", *(a->stop_flag_addr));
     // If file changed, push
     pthread_mutex_lock(&a->mu);
     int need_push = a->new_message;
@@ -351,6 +352,8 @@ void* socket_client(void* arg) {
 
     usleep(100000);  // 100ms delay
   }
+
+  printf("stop!\n");
 
   return NULL;
 }
