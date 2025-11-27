@@ -76,4 +76,4 @@ sudo nano ~/rfs/main.py
 ## Contributors
 **Bill Le**: https://bill-le.info
 
-**Darian Jiminez**: https://github.com/darianjimenez
+**Darian Jimenez**: https://github.com/darianjimenez
