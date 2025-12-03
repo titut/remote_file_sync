@@ -363,12 +363,12 @@ void* socket_client(void* arg) {
       }
 
       push_to_server(a);
-
-      // Pull from server periodically
-      pull_from_server(a);
-
-      usleep(100000);  // 100ms delay
     }
+    
+    // Pull from server periodically
+    pull_from_server(a);
+
+    usleep(100000);  // 100ms delay
   }
 
   return NULL;
