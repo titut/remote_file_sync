@@ -64,14 +64,16 @@ make
 ./bin/client
 ```
 
-6. Edit rfs.py (you can open it up in IDE or use vim, etc.)
+6. Edit rfs.py (you can open it up in *IDE or use vim, etc.)
 ```bash
 sudo nano ~/rfs/main.py
 ```
 
 7. See the changes on the other devices `~/rfs/main.py`
 
+* If you chosoe to open it in an IDE, ensure to set the Autosave delay to very fast (~100ms) for the most "Google Doc" like experience.
+
 ## Contributors
 **Bill Le**: https://bill-le.info
 
-**Darian Jiminez**: https://github.com/darianjimenez
+**Darian Jimenez**: https://github.com/darianjimenez
