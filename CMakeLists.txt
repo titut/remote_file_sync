@@ -1,45 +1,47 @@
-cmake_minimum_required(VERSION 3.5)
+# Require the CMake version matching what is included in the latest LTS version
+# of Ubuntu, which at the time of writing is 22.04.
+cmake_minimum_required(VERSION 3.22)
 
-# Definitions
-set(PROJECT_NAME remote_file_sync)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "./bin")
-
-#project(cmake_c_template)
-project(${PROJECT_NAME})
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-
-# Include paths
-set(INCLUDE_DIRS ${INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include)
-
-# Assign the include directories
-include_directories(${INCLUDE_DIRS})
-
-# Find library sources
-#file(GLOB_RECURSE LIB_SRC_FILES include/*/*.c)
-
-# Build static/shared library
-#add_library(${PROJECT_NAME}_LIB STATIC ${LIB_SRC_FILES})
-
-# Install library
-#install(TARGETS ${PROJECT_NAME}_LIB DESTINATION lib)
-
-# Install library headers
-file(GLOB_RECURSE LIB_INC_FILES include/*.h)
-install(FILES ${LIB_INC_FILES} DESTINATION include)
-
-set(SOURCE_CLIENT
-    client/file_watcher.c
-    client/socket_client.c
-    client/rfs_file.c
-    include/file_watcher.h
-    include/socket_client.h
-    include/rfs_file.h
+# TODO: Define a good project in the line below. If applicable, list other
+# languages in this project managed by CMake.
+project(remote_file_sync
+  VERSION 1.0
+  LANGUAGES C
 )
 
-set(SOURCE_SERVER
-    server/server.c
-)
+# Use the latest C standard supported by Clang and LLVM in the latest LTS
+# version of Ubuntu.
+set(CMAKE_C_STANDARD 23)
 
-add_executable(client ${SOURCE_CLIENT})
-add_executable(server ${SOURCE_SERVER})
-#target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_LIB)
+set(CMAKE_C_FLAGS "-Wall -Wextra")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wconversion")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wdouble-promotion")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wduplicated-branches")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wduplicated-cond")
+# The following line is only needed in LLVM/clang
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wimplicit-fallthrough")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmisleading-indentation")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wnull-dereference")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wshadow")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wsign-conversion")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunreachable-code")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunused")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+
+# No options are set here because the configuration is set in .clang-tidy
+# instead. If that file is not present, clang-tidy will be of limited help.
+set(CMAKE_C_CLANG_TIDY "clang-tidy")
+
+# Include the source files.
+add_subdirectory(src)
+
+# In current courses that teach C, we use the Criterion testing framework. If
+# If you want to use a different framework, or if you want to skip testing
+# entirely (not recommended), change the lines below.
+include(CTest)
+find_library(CRITERION criterion REQUIRED)
+set(CRITERION_FLAGS --verbose -j1)
+
+add_subdirectory(test)

@@ -1,6 +1,5 @@
-// file_watcher.h
-#ifndef FILE_WATCHER_H
-#define FILE_WATCHER_H
+#ifndef ARGS_H
+#define ARGS_H
 
 #include <stdint.h>
 #include <pthread.h>
@@ -16,7 +15,5 @@ struct args {
     pthread_mutex_t mu;
     volatile sig_atomic_t* stop_flag_addr;
 };
-
-void* start_file_watcher(void* arg);
 
 #endif

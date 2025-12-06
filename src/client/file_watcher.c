@@ -1,8 +1,9 @@
 // file_watcher.c
 #define _GNU_SOURCE
-#include "file_watcher.h"
 #include "socket_client.h"
 #include "rfs_file.h"
+#include "args.h"
+
 #include <arpa/inet.h>
 #include <sys/inotify.h>
 #include <sys/stat.h>

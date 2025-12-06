@@ -1,7 +1,6 @@
 // rfs_file.c
 #define _GNU_SOURCE
 
-#include "file_watcher.h"
 #include "rfs_file.h"
 
 #include <sys/stat.h>

@@ -1,8 +1,8 @@
 // socket_client.c
 #define _GNU_SOURCE
 #include "socket_client.h"
-#include "file_watcher.h"
 #include "rfs_file.h"
+#include "args.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -351,7 +351,6 @@ void* socket_client(void* arg) {
     if (ret == 0) continue; // timeout → check stop_flag again
 
     if (pfd.revents & POLLIN) {
-
       // If file changed, push
       char buf[100];
       read(a->pipefd[0], buf, sizeof(buf));
@@ -364,7 +363,7 @@ void* socket_client(void* arg) {
 
       push_to_server(a);
     }
-    
+
     // Pull from server periodically
     pull_from_server(a);
 
