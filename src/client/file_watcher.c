@@ -1,4 +1,3 @@
-// file_watcher.c
 #define _GNU_SOURCE
 #include "socket_client.h"
 #include "rfs_file.h"
@@ -35,7 +34,6 @@ const char* home;
 
 // Ctrl + C handling variables
 volatile sig_atomic_t stop_flag = 0;
-
 
 struct args* arguments;
 
@@ -93,7 +91,7 @@ void* start_file_watcher(void* arg) {
             break;
         }
 
-        if (ret == 0) continue; // timeout → check stop_flag again
+        if (ret == 0) continue; // timeout -> check stop_flag again
 
         if (pfd.revents & POLLIN) {
             int length = read(fd, buffer, BUF_LEN);
@@ -167,11 +165,11 @@ int main(void){
         perror("malloc failed");
         exit(EXIT_FAILURE);
     }
-    arguments->new_message = 0;
-    arguments->message     = NULL;
-    arguments->file_path   = file_path;
-    arguments->last_version = 0;
-    arguments->suppress_next = 0;
+    arguments->new_message    = 0;
+    arguments->message        = NULL;
+    arguments->file_path      = file_path;
+    arguments->last_version   = 0;
+    arguments->suppress_next  = 0;
     arguments->stop_flag_addr = &stop_flag;
     pthread_mutex_init(&arguments->mu, NULL);
 

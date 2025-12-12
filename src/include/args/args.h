@@ -10,7 +10,7 @@ struct args {
     int pipefd[2];
     char *message;
     char *file_path;
-    uint64_t last_version;
+    uint32_t last_version;
     int suppress_next;
     pthread_mutex_t mu;
     volatile sig_atomic_t* stop_flag_addr;

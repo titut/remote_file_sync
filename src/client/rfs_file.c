@@ -1,11 +1,8 @@
-// rfs_file.c
 #define _GNU_SOURCE
 
 #include "rfs_file.h"
 
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -141,9 +138,6 @@ int read_file_into_buf(const char *path, uint8_t **data_out, uint32_t *len_out) 
 
 // Atomically write new content to `path` using a temp file + rename
 // This is used by the client when applying a new version pulled from the server
-    // 1. Construct "<path>.tmp"
-    // 2. Open temp file, write data, close
-    // 3. rename(tmp, path) 
 int atomic_write_local(const char *path, const uint8_t *data, uint32_t len) {
     char tmp[PATH_MAX];
 
@@ -156,18 +150,20 @@ int atomic_write_local(const char *path, const uint8_t *data, uint32_t len) {
 
     // Open the temporary file
     int fd = open(tmp, O_CREAT | O_TRUNC | O_WRONLY | O_CLOEXEC, 0644);
-    if (fd < 0) return -1;
+    if (fd < 0) 
+        return -1;
 
     // Write the entire buffer
     if (len && write(fd, data, len) != (ssize_t)len) {
         close(fd);
         return -1;
     }
-
     // Ensure bytes are disk and close descriptor
-    if (close(fd) != 0) return -1;
+    if (close(fd) != 0) 
+        return -1;
 
     // Replace the new file with the old one
-    if (rename(tmp, path) != 0) return -1;
+    if (rename(tmp, path) != 0) 
+        return -1;
     return 0;
 }

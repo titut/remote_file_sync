@@ -88,3 +88,6 @@ sudo nano ~/rfs/main.py
 6. Atomic write file: https://stackoverflow.com/questions/57383333/how-to-write-a-file-atomically-and-asynchronously-in-linux-using-c
 7. Socket quick-start: https://www.geeksforgeeks.org/c/socket-programming-cc/
 8. Socket reading from class: Head First C Chapter 11
+9. Threads reading: Head First C Chapter 12
+10. Lib: https://manual.cs50.io/
+11. Networking: https://beej.us/guide/bgnet/ 
