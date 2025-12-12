@@ -91,3 +91,4 @@ sudo nano ~/rfs/main.py
 9. Threads reading: Head First C Chapter 12
 10. Lib: https://manual.cs50.io/
 11. Networking: https://beej.us/guide/bgnet/ 
+12. ChatGPT help with fixing errors: https://chatgpt.com/share/693c4672-6120-8012-ba3b-4c7947482686 
