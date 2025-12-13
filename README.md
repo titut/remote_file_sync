@@ -79,16 +79,4 @@ sudo nano ~/rfs/main.py
 **Darian Jimenez**: https://github.com/darianjimenez
 
 ## Sources
-
-1. How to use inotify: https://www.thegeekstuff.com/2010/04/inotify-c-program-example/
-2. Poll: https://pubs.opengroup.org/onlinepubs/009696799/functions/poll.html
-3. Pipe: https://www.geeksforgeeks.org/c/pipe-system-call/
-4. Safe ctrl + C: https://stackoverflow.com/questions/7623401/override-ctrl-c
-5. Check if file exists: https://www.learnc.net/c-tutorial/c-file-exists/
-6. Atomic write file: https://stackoverflow.com/questions/57383333/how-to-write-a-file-atomically-and-asynchronously-in-linux-using-c
-7. Socket quick-start: https://www.geeksforgeeks.org/c/socket-programming-cc/
-8. Socket reading from class: Head First C Chapter 11
-9. Threads reading: Head First C Chapter 12
-10. Lib: https://manual.cs50.io/
-11. Networking: https://beej.us/guide/bgnet/ 
-12. ChatGPT help with fixing errors: https://chatgpt.com/share/693c4672-6120-8012-ba3b-4c7947482686 
+https://docs.google.com/document/d/1A9ZjeGQ6E63wb57a2eBDnQZw1EHyU4Ns3SAEs7wqAdo/edit?usp=sharing 
