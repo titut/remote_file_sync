@@ -12,8 +12,6 @@ Client creates three pthreads (filewatch, send, and receive), and the server use
 
 **MVP**: Two people can edit a file through their clients while connected to the central server.
 
-**Demo**: [insert link here]
-
 ## Features
 - Multi-client TCP Sockets 
 - Inotify to watch modifications of file
