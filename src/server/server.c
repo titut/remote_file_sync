@@ -8,11 +8,6 @@
  * The <file_path> is where the document you're editing is kept.
  */
 
-// Load path to file into memory
-// Listen on port 9000
-// Accept clients and spawns threads
-// Each thread processes C_GET and C_PUT
-
 #define _GNU_SOURCE
 #include "comm.h"
 
@@ -21,16 +16,15 @@
 #include <string.h>
 #include <stdint.h>     // Need to specify int lengths 
 
-#include <errno.h>      // Global erno + Codes 
-#include <inttypes.h>   // Avoid undefined behavior when printing uint64_t
-#include <limits.h>     // PATH_MAX -> Limits of basic types
+#include <errno.h>     
+#include <inttypes.h>   
+#include <limits.h>    
 
 #include <unistd.h>     // POSIX calls
 #include <fcntl.h>      // File control operations and flags 
 #include <pthread.h>    // thread per client POSIX threads and mutexes
 #include <sys/socket.h> 
-#include <sys/stat.h>   // File status (struct stat, stat(), fstat()) --> Macros like S_ISREG, S_ISDIR
-#include <sys/types.h>  // System types 
+#include <sys/stat.h>   // File status 
 
 #include <arpa/inet.h>  // Byte order conversion and address conversion
 #include <netinet/in.h> // Internet address structures and constants 
@@ -43,7 +37,7 @@ static struct State {
     uint8_t *content;      // Heap buffer
     uint32_t content_len;  // Bytes in content
     uint32_t version;      // Version starting at 0
-    pthread_mutex_t mu;    // Guard all fields above, ensure thread safety
+    pthread_mutex_t mu;    // Ensure thread safety
 } g;
 
 // Replace file at 'path' with 'data' of length n atomically
@@ -157,22 +151,18 @@ static int merge_or_conflict(uint32_t base_version,
 
 // Handle C_GET: send current state to client 
 static int handle_get(int fd) {
-    pthread_mutex_lock(&g.mu); // lock to read consistent state
+    pthread_mutex_lock(&g.mu); 
 
-    // uint64_t ver = g.version;
-    // uint32_t n = g.content_len;
-    // const uint8_t *data = g.content;
-
-    uint8_t *buf = malloc(8 + g.content_len); // 12 + data 
+    uint8_t *buf = malloc(8 + g.content_len);
     if (!buf) {
         pthread_mutex_unlock(&g.mu);
         return -1;
     }
 
-    uint32_t be_ver = htonl(g.version);    // version in network order 
-    uint32_t be_len = htonl(g.content_len);  // length in network order
+    uint32_t be_ver = htonl(g.version);     // version in network order 
+    uint32_t be_len = htonl(g.content_len); // length in network order
 
-    memcpy(buf, &be_ver, 4);        // version 
+    memcpy(buf, &be_ver, 4);       // version 
     memcpy(buf + 4, &be_len, 4);   // length 
     if (g.content_len) memcpy(buf + 8, g.content, g.content_len); // content 
 
@@ -276,18 +266,12 @@ static int listen_on(uint16_t port) {
     if (fd < 0) return -1;
 
     int yes = 1;
-    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)); // Reuse addr
-
-// Allow both IPv4 and IPv6
-#ifdef IPV6_V6ONLY
-    int v6only = 0;
-    setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &v6only, sizeof(v6only));
-#endif
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)); 
 
     struct sockaddr_in6 addr6;
     memset(&addr6, 0, sizeof(addr6));
     addr6.sin6_family = AF_INET6; // IPv6
-    addr6.sin6_addr   = in6addr_any; // Listen on all interfaces
+    addr6.sin6_addr   = in6addr_any; // Listen
     addr6.sin6_port   = htons(port); // Port
 
     if (bind(fd, (struct sockaddr *)&addr6, sizeof(addr6)) != 0) {
